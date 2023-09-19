@@ -1,3 +1,6 @@
 .DS_Store
 /Cafe_datasets
 /Shopping_datasets
+
+listings-clean.csv
+listings-clean-amenities.csv
