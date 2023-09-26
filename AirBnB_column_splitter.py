@@ -16,7 +16,7 @@ most_amenities_length = dataFrame.amenities.str.len().max()
 # puts every unique amenity in the dataset into this dictionary as a unique key
 amenities_dictionary = {}
 for row in dataFrame['amenities']:
-        row_amenities = row.replace('[', '').replace( ']', '').replace('"', '').split(',')
+        row_amenities = [amenity.strip() for amenity in row.replace('[', '').replace( ']', '').replace('"', '').split(',')]
         for amenity in row_amenities:
             amenities_dictionary[amenity] = 1
 
@@ -31,7 +31,8 @@ dataFrame = pd.concat([dataFrame, ameinty_dataFrame], axis=1)
 #print(dataFrame['amenities'])
 #print(dataFrame.columns)
 #print(dataFrame.columns)
-#print(dataFrame['has_amenity_Kitchen'])
+#print(dataFrame['has_amenity_Kitchen'].value_counts())
+#print(dataFrame['has_amenity_Fire extinguisher'].value_counts())
 
 
 # writes the new dataFrame containing the new columns of true/false for every amenity
