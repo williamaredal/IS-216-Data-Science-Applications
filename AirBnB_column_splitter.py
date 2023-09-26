@@ -15,11 +15,11 @@ most_amenities_length = dataFrame.amenities.str.len().max()
 
 # puts every unique amenity in the dataset into this dictionary as a unique key
 amenities_dictionary = {}
+dataFrame['amenities'] = dataFrame['amenities'].str.replace('\\', '')
 for row in dataFrame['amenities']:
         row_amenities = [amenity.strip() for amenity in row.replace('[', '').replace( ']', '').replace('"', '').split(',')]
         for amenity in row_amenities:
             amenities_dictionary[amenity] = 1
-
 
 # then makes a new dataset with new columns where the amenity match for that row is set as true/false for each amenity in the ameinties_dictionary key set
 amenity_data = {'has_amenity_' + amenity: dataFrame['amenities'].str.contains(re.escape(amenity)) for amenity in amenities_dictionary.keys()}
