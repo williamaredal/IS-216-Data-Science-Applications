@@ -21,6 +21,9 @@ for row in dataFrame['amenities']:
         for amenity in row_amenities:
             amenities_dictionary[amenity] = 1
 
+# adds column that has each row's number of amenities listed
+dataFrame['amenities_count'] = dataFrame['amenities'].apply(lambda row: len([amenity.strip() for amenity in row.replace('[', '').replace( ']', '').replace('"', '').split(',')]))
+
 # then makes a new dataset with new columns where the amenity match for that row is set as true/false for each amenity in the ameinties_dictionary key set
 amenity_data = {'has_amenity_' + amenity: dataFrame['amenities'].str.contains(re.escape(amenity)) for amenity in amenities_dictionary.keys()}
 ameinty_dataFrame = pd.DataFrame.from_dict(amenity_data)
@@ -29,6 +32,8 @@ dataFrame = pd.concat([dataFrame, ameinty_dataFrame], axis=1)
 
 # prints for verification and testing 
 #print(dataFrame['amenities'])
+#print(f"min amenities: {min(dataFrame['amenities_count'])}")
+#print(f"max amenities: {max(dataFrame['amenities_count'])}")
 #print(dataFrame.columns)
 #print(dataFrame.columns)
 #print(dataFrame['has_amenity_Kitchen'].value_counts())
