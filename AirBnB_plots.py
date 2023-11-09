@@ -8,7 +8,7 @@ import re
 def extract_number(text):
     # if the row has a NaN value, set it to 0
     if pd.isna(text):
-        return 0
+        return 0.0
     
     # if the string contains integer(s), return these
     match = re.search(r'\d+', text)
@@ -18,7 +18,7 @@ def extract_number(text):
     
     # if there is text, but no number, return 1
     else:
-        return 1
+        return 1.0
 
 
 def CorrelationalMatrixHeatmap(dataFrame, columns):
