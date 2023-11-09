@@ -1,8 +1,8 @@
 import pandas as pd
-import plotly.express as px
 import seaborn as sns
 import matplotlib.pyplot as plt
 import re
+from sklearn.preprocessing import MinMaxScaler
 
 
 def extract_number(text):
@@ -29,7 +29,8 @@ def CorrelationalMatrixHeatmap(dataFrame, columns):
 
     # Create a heatmap
     plt.figure(figsize=(8, 6))
-    sns.heatmap(correlationMatrix, annot=True, cmap="coolwarm")
+    heatmap = sns.heatmap(correlationMatrix, annot=True, cmap="coolwarm")
+    heatmap.set_xticklabels(heatmap.get_xticklabels(), rotation=45, ha='right')
     plt.title("Correlation Heatmap")
     plt.show()
 
@@ -39,7 +40,7 @@ dataFrame = pd.read_csv(filename, encoding='latin-1')
 dataFrame['number_bathrooms'] = dataFrame['bathrooms_text'].apply(extract_number)
 
 columns = [
-    #'price', 
+    'price', 
     'latitude', 'longitude', 
     'accommodates', 'bedrooms', 'beds', 'number_bathrooms',
     'minimum_nights', 'maximum_nights',
@@ -53,6 +54,14 @@ columns = [
     #'calculated_host_listings_count_private_rooms',
     #'calculated_host_listings_count_shared_rooms'
 ]
+
+
+# Assuming df is your DataFrame
+df_normalized = dataFrame.copy()
+
+scaler = MinMaxScaler()
+df_normalized[columns] = scaler.fit_transform(dataFrame[columns])
+
 
 # plots heatmap of correlational matrix
 CorrelationalMatrixHeatmap(dataFrame, columns)
