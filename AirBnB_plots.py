@@ -13,7 +13,7 @@ def extract_number(text):
     # if the string contains integer(s), return these
     match = re.search(r'\d+', text)
     if match:
-        extractedInteger = int(match.group())
+        extractedInteger = float(match.group())
         return extractedInteger
     
     # if there is text, but no number, return 1
