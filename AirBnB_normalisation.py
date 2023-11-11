@@ -45,6 +45,14 @@ def haversine_distance_to_city_center(latitude, lonitude):
     return c * r  # Distance in kilometers
 
 
+def has_kitchen(text):
+    match = re.search(r'\bKitchen\b', text)
+    if match:
+        return 1
+    
+    else:
+        return 0
+
 
 filename = 'listings-clean.csv'
 dataFrame = pd.read_csv(filename, encoding='latin-1')
@@ -69,10 +77,14 @@ columns = [
 # Amenities (is this covered by amenities_count?), host_is_superhost 
 
 # Latitude and longtitude distance to oslo 
-dataFrame['distance_to_city_center'] = dataFrame.apply(lambda row: find_distance_to_city_center(row['latitude'], row['longitude']))
+dataFrame['distance_to_city_center'] = dataFrame.apply(lambda row: find_distance_to_city_center(row['latitude'], row['longitude']), axis=1)
 
 # Numerical representation of true/false if the listing amenities contains "Kitchen"
-kitchen_availability = 0
+dataFrame['kitchen_availability'] = dataFrame['amenities'].apply(has_kitchen)
+
+pd.set_option('display.max_rows', None)
+print(dataFrame['room_type'].value_counts())
+exit()
 # Numerical representation of true/false if the listing room type is "place for yourself"
 place_for_yourself = 0
 # Converts superhost boolean values to numerical representation
