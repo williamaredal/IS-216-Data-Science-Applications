@@ -27,18 +27,20 @@ def find_distance_to_city_center(latitude, longitude):
     return distance_to_city_center
 
 
-def haversine_distance_to_city_center(latitude, lonitude):
+def haversine_distance_to_city_center(latitude, longitude):
     # Hardcoded latitude and longitude example
     # Latitude and longtitude distance to oslo 
     oslo_lat, oslo_long = 59.911491, 10.757933 # from this source: https://www.latlong.net/place/oslo-ostlandet-norway-14195.html
 
     # Convert latitude and longitude from degrees to radians
-    lat1, lon1, oslo_lat, oslo_long = map(math.radians, [lat1, lon1, oslo_lat, oslo_long])
+    latitude, longitude, oslo_lat, oslo_long = map(math.radians, [latitude, longitude, oslo_lat, oslo_long])
+
 
     # Haversine formula
-    dlat = oslo_lat - lat1
-    dlon = oslo_long - lon1
-    a = math.sin(dlat/2)**2 + math.cos(lat1) * math.cos(oslo_lat) * math.sin(dlon/2)**2
+    dlat = oslo_lat - latitude
+    dlon = oslo_long - longitude
+    a = math.sin(dlat/2)**2 + math.cos(latitude) * math.cos(oslo_lat) * math.sin(dlon/2)**2
+
     c = 2 * math.asin(math.sqrt(a))
     r = 6371  # Radius of Earth in kilometers
 
@@ -62,6 +64,20 @@ def place_for_yourself(text):
         return 0
 
 
+def is_host_superhost(text):
+    if text == 't':
+        return 1
+    else:
+        return 0
+
+
+def count_amenities(text):
+    amenities_count = len([amenity.strip() for amenity in text.replace('[', '').replace( ']', '').replace('"', '').split(',') if amenity != ''])
+
+    return amenities_count
+
+
+
 filename = 'listings-clean.csv'
 dataFrame = pd.read_csv(filename, encoding='latin-1')
 dataFrame['number_bathrooms'] = dataFrame['bathrooms_text'].apply(extract_number)
@@ -70,7 +86,7 @@ columns = [
     'price', 
     'latitude', 'longitude', 'distance_to_city_center',
     'bedrooms', 'beds', 'number_bathrooms',
-    # 'kitchen_availability', 'place_for_yourself', 'host_is_superhost_numerical', 'amenities_count',  
+    'kitchen_availability', 'place_for_yourself', 'host_is_superhost_numerical', 'amenities_count',  
     'review_scores_rating', 'number_of_reviews', # host_is_superhost_numerical
     # additional review types
     #'review_scores_accuracy', 'review_scores_cleanliness', 'review_scores_checkin', 'review_scores_communication', 'review_scores_location', 'review_scores_value',
@@ -85,7 +101,7 @@ columns = [
 # Amenities (is this covered by amenities_count?), host_is_superhost 
 
 # Latitude and longtitude distance to oslo 
-dataFrame['distance_to_city_center'] = dataFrame.apply(lambda row: find_distance_to_city_center(row['latitude'], row['longitude']), axis=1)
+dataFrame['distance_to_city_center'] = dataFrame.apply(lambda row: haversine_distance_to_city_center(row['latitude'], row['longitude']), axis=1)
 
 # Numerical representation of true/false if the listing amenities contains "Kitchen"
 dataFrame['kitchen_availability'] = dataFrame['amenities'].apply(has_kitchen)
@@ -94,8 +110,10 @@ dataFrame['kitchen_availability'] = dataFrame['amenities'].apply(has_kitchen)
 dataFrame['place_for_yourself'] = dataFrame['room_type'].apply(place_for_yourself)
 
 # Converts superhost boolean values to numerical representation
-dataFrame['host_is_superhost_numerical'] = dataFrame['host_is_superhost'].apply(lambda row: 1 if row == 't' else 0)
+dataFrame['host_is_superhost_numerical'] = dataFrame['host_is_superhost'].apply(is_host_superhost)
 
+# adds new column with number of amenities count
+dataFrame['amenities_count'] = dataFrame['amenities'].apply(count_amenities)
 
 
 # TODO look at the column edges to find strange data to remove
@@ -108,6 +126,7 @@ for col in columns:
     print(f"Investigation of column: {col}")
     print(f"column min value {min(dataFrame[col])}")
     print(f"column max value {max(dataFrame[col])}")
+    print(dataFrame[col].value_counts())
     print()
 
 exit()
