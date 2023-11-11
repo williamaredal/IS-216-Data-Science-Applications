@@ -54,6 +54,14 @@ def has_kitchen(text):
         return 0
 
 
+def place_for_yourself(text):
+    match = re.search(r'\bEntire home/apt\b', text)
+    if match:
+        return 1
+    else:
+        return 0
+
+
 filename = 'listings-clean.csv'
 dataFrame = pd.read_csv(filename, encoding='latin-1')
 dataFrame['number_bathrooms'] = dataFrame['bathrooms_text'].apply(extract_number)
@@ -82,11 +90,9 @@ dataFrame['distance_to_city_center'] = dataFrame.apply(lambda row: find_distance
 # Numerical representation of true/false if the listing amenities contains "Kitchen"
 dataFrame['kitchen_availability'] = dataFrame['amenities'].apply(has_kitchen)
 
-pd.set_option('display.max_rows', None)
-print(dataFrame['room_type'].value_counts())
-exit()
 # Numerical representation of true/false if the listing room type is "place for yourself"
-place_for_yourself = 0
+dataFrame['place_for_yourself'] = dataFrame['room_type'].apply(place_for_yourself)
+
 # Converts superhost boolean values to numerical representation
 dataFrame['host_is_superhost_numerical'] = dataFrame['host_is_superhost'].apply(lambda row: 1 if row == 't' else 0)
 
