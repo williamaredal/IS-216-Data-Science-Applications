@@ -17,12 +17,12 @@ most_amenities_length = dataFrame.amenities.str.len().max()
 amenities_dictionary = {}
 dataFrame['amenities'] = dataFrame['amenities'].str.replace('\\', '')
 for row in dataFrame['amenities']:
-        row_amenities = [amenity.strip() for amenity in row.replace('[', '').replace( ']', '').replace('"', '').split(',')]
+        row_amenities = [amenity.strip() for amenity in row.replace('[', '').replace( ']', '').replace('"', '').split(',') if amenity != '']
         for amenity in row_amenities:
             amenities_dictionary[amenity] = 1
 
 # adds column that has each row's number of amenities listed
-dataFrame['amenities_count'] = dataFrame['amenities'].apply(lambda row: len([amenity.strip() for amenity in row.replace('[', '').replace( ']', '').replace('"', '').split(',')]))
+dataFrame['amenities_count'] = dataFrame['amenities'].apply(lambda row: len([amenity.strip() for amenity in row.replace('[', '').replace( ']', '').replace('"', '').split(',') if amenity != '']))
 
 # then makes a new dataset with new columns where the amenity match for that row is set as true/false for each amenity in the ameinties_dictionary key set
 amenity_data = {'has_amenity_' + amenity: dataFrame['amenities'].str.contains(re.escape(amenity)) for amenity in amenities_dictionary.keys()}
