@@ -129,14 +129,13 @@ for col in columns:
     print(dataFrame[col].value_counts())
     print()
 
-exit()
-
 
 # Assuming df is your DataFrame
 df_normalized = dataFrame.copy()
 
 
-# Find a mask for the NaN value rows/cells to ignore during normalisation
+# TODO Find a mask for the NaN value rows/cells to ignore during normalisation
+
 # TODO the closest_to_city_center should be inverted
 scaler = MinMaxScaler()
 df_normalized[columns] = scaler.fit_transform(dataFrame[columns])
