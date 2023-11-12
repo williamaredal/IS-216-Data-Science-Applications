@@ -118,7 +118,7 @@ columns = [
 ]
 
 
-# TODO look at the column edges to find strange data to remove
+# For examining the dataFrame, identifying if there are strange values there
 '''
 for col in columns:
     print(f"\nInvestigation of column: {col}")
