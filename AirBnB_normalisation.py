@@ -114,9 +114,17 @@ columns = [
 
     # additional columns than the ones we have in the google sheets document
     #'accommodates', 'reviews_per_month', 
-     
 ]
 
+
+# TODO look at the column edges to find strange data to remove
+'''
+for col in columns:
+    print(f"\nInvestigation of column: {col}")
+    print(f"column min value {min(dataFrame[col])}")
+    print(f"column max value {max(dataFrame[col])}")
+    print(dataFrame[col].value_counts())
+'''
 
 
 # Section for filtering out NaN values prior to normalisation
@@ -154,22 +162,17 @@ normalised_dataFrame.reset_index(drop=True, inplace=True)
 na_dataFrame.reset_index(drop=True, inplace=True)
 normalised_and_na_dataFrame = pd.concat([normalised_dataFrame, na_dataFrame[columns]], axis=0, ignore_index=True)
 
-
+# Verification of the dataset through the filtering and normalisation process
 '''
+print(f"Original DataFrame rows: {len(dataFrame)}")
+print(f"NaN row DataFrame rows: {len(na_dataFrame)}")
+print(f"NaN row filtered DataFrame rows: {len(filtered_dataFrame)}")
+print(f"Normalised DataFrame merged with NaN-filled zeros: {len(normalised_and_na_dataFrame)}")
+'''
+
 # Verifies that the final normalised dataFrame does not contain NaN values
-normalised_dataFrame_nan_counts = normalised_dataFrame.isnull().sum()
+'''
+normalised_dataFrame_nan_counts = normalised_and_na_dataFrame[columns].isnull().sum()
 print(f"\nNormalised dataFrame number of NaN values for each column:")
 print(normalised_dataFrame_nan_counts)
-'''
-
-
-
-# TODO look at the column edges to find strange data to remove
-'''
-for col in columns:
-    print(f"Investigation of column: {col}")
-    print(f"column min value {min(dataFrame[col])}")
-    print(f"column max value {max(dataFrame[col])}")
-    print(dataFrame[col].value_counts())
-    print()
 '''
