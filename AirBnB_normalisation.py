@@ -80,26 +80,10 @@ def count_amenities(text):
 
 filename = 'listings-clean.csv'
 dataFrame = pd.read_csv(filename, encoding='latin-1')
-dataFrame['number_bathrooms'] = dataFrame['bathrooms_text'].apply(extract_number)
-
-columns = [
-    'price', 
-    'latitude', 'longitude', 'distance_to_city_center',
-    'bedrooms', 'beds', 'number_bathrooms',
-    'kitchen_availability', 'place_for_yourself', 'host_is_superhost_numerical', 'amenities_count',  
-    'review_scores_rating', 'number_of_reviews',  'host_is_superhost_numerical'
-
-    # additional review types
-    #'review_scores_accuracy', 'review_scores_cleanliness', 'review_scores_checkin', 'review_scores_communication', 'review_scores_location', 'review_scores_value',
-
-    # additional columns than the ones we have in the google sheets document
-    #'accommodates', 'reviews_per_month', 
-     
-]
 
 # Make the colums required for the model that are missing
-# Closest to city center,  Number of Baths (is this covered by number_bathrooms?), Kitchen Availability, 
-# Amenities (is this covered by amenities_count?), host_is_superhost 
+# Makes column with the number of bathrooms
+dataFrame['number_bathrooms'] = dataFrame['bathrooms_text'].apply(extract_number)
 
 # Latitude and longtitude distance to oslo 
 dataFrame['distance_to_city_center'] = dataFrame.apply(lambda row: haversine_distance_to_city_center(row['latitude'], row['longitude']), axis=1)
@@ -115,6 +99,23 @@ dataFrame['host_is_superhost_numerical'] = dataFrame['host_is_superhost'].apply(
 
 # adds new column with number of amenities count
 dataFrame['amenities_count'] = dataFrame['amenities'].apply(count_amenities)
+
+
+
+columns = [
+    'price', 
+    'latitude', 'longitude', 'distance_to_city_center',
+    'bedrooms', 'beds', 'number_bathrooms',
+    'kitchen_availability', 'place_for_yourself', 'host_is_superhost_numerical', 'amenities_count',  
+    'review_scores_rating', 'number_of_reviews',  'host_is_superhost_numerical'
+
+    # additional review types
+    #'review_scores_accuracy', 'review_scores_cleanliness', 'review_scores_checkin', 'review_scores_communication', 'review_scores_location', 'review_scores_value',
+
+    # additional columns than the ones we have in the google sheets document
+    #'accommodates', 'reviews_per_month', 
+     
+]
 
 
 
