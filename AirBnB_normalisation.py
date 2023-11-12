@@ -163,8 +163,11 @@ print(f"Dataframe normalised without NaN rows: {len(df_normalized)}")
 '''
 
 # Verifies that the final normalised dataFrame does not contain NaN values
-normalised_dataFrame_nan_counts = df_normalized[columns].isnull().sum()
 '''
+normalised_dataFrame_nan_counts = df_normalized[columns].isnull().sum()
 print(f"\nNormalised dataFrame number of NaN values for each column:")
 print(normalised_dataFrame_nan_counts)
 '''
+
+# Writes normalized dataset to csv file
+df_normalized.to_csv('listings-cleaned-normalized.csv')
