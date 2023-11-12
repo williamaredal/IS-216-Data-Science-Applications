@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import math
 import re
 from sklearn.preprocessing import MinMaxScaler
@@ -78,7 +79,7 @@ def count_amenities(text):
 
 
 
-filename = 'listings-clean.csv'
+filename = 'listings-clean-william.csv'
 dataFrame = pd.read_csv(filename, encoding='latin-1')
 
 # Make the colums required for the model that are missing
@@ -127,52 +128,43 @@ for col in columns:
 '''
 
 
-# Section for filtering out NaN values prior to normalisation
-# Creates a mask for filtering NaN values prior to normalisation
-mask = dataFrame[columns].notna().all(axis=1)
+# Perform normalization 
+df_normalized = dataFrame.copy()
+for col in columns:
+    # Extract non-NaN values and normalize them
+    non_nan_values = dataFrame[col][dataFrame[col].notna()].values.reshape(-1, 1)
+    scaler = MinMaxScaler()
+    # If the column should be inverted (1 - value)
+    if col == 'distance_to_city_center':
+        non_nan_values = 1 - scaler.fit_transform(non_nan_values)
+    else:
+        non_nan_values = scaler.fit_transform(non_nan_values)
 
-# Creates two dataframes, one containing the rows that have NaN values, the other excluding these rows
-na_dataFrame = dataFrame[~mask].fillna(0)
-filtered_dataFrame = dataFrame[mask]
+    # Replace only the non-NaN values in the column with their normalized values
+    df_normalized.loc[dataFrame[col].notna(), col] = np.squeeze(non_nan_values)
+
+    # Now fill NaN values with 0
+    df_normalized[col].fillna(0, inplace=True)
+
 
 '''
-# Checks rows that contain NaN values
-nan_counts = dataFrame[columns].isnull().sum()
-print(f"\nThe number of rows containing NaN values for each column:")
-print(nan_counts)
-'''
-'''
-# Verifies that the dataframe does not contain NaN values
-mask_filtered_nan_counts = filtered_dataFrame[columns].isnull().sum()
-print(f"\nFiltered dataFrame number of NaN values for each column:")
-print(mask_filtered_nan_counts)
+for col in columns:
+    print(f"\nInvestigation of column: {col}")
+    print(f"column min value {min(df_normalized[col])}")
+    print(f"column max value {max(df_normalized[col])}")
+    print(df_normalized[col].value_counts())
 '''
 
-
-# Normalises the non-NaN value rows, then concats the NaN row dataframe with NaN replaced by zeros
-scaler = MinMaxScaler(feature_range=(0, 1))
-normalised_dataFrame = pd.DataFrame(scaler.fit_transform(filtered_dataFrame[columns]), columns=columns)
-
-# Reverses the order of the normalisation for column_to_reverse ('distance_to_city_center')
-column_to_reverse = 'distance_to_city_center'
-normalised_dataFrame[column_to_reverse] = 1 - normalised_dataFrame[column_to_reverse]
-
-# merges the na_dataFrame (with NaN values replaced with zeros)
-normalised_dataFrame.reset_index(drop=True, inplace=True)
-na_dataFrame.reset_index(drop=True, inplace=True)
-normalised_and_na_dataFrame = pd.concat([normalised_dataFrame, na_dataFrame[columns]], axis=0, ignore_index=True)
 
 # Verification of the dataset through the filtering and normalisation process
 '''
 print(f"Original DataFrame rows: {len(dataFrame)}")
-print(f"NaN row DataFrame rows: {len(na_dataFrame)}")
-print(f"NaN row filtered DataFrame rows: {len(filtered_dataFrame)}")
-print(f"Normalised DataFrame merged with NaN-filled zeros: {len(normalised_and_na_dataFrame)}")
+print(f"Dataframe normalised without NaN rows: {len(df_normalized)}")
 '''
 
 # Verifies that the final normalised dataFrame does not contain NaN values
+normalised_dataFrame_nan_counts = df_normalized[columns].isnull().sum()
 '''
-normalised_dataFrame_nan_counts = normalised_and_na_dataFrame[columns].isnull().sum()
 print(f"\nNormalised dataFrame number of NaN values for each column:")
 print(normalised_dataFrame_nan_counts)
 '''
