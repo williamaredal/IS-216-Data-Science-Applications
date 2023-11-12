@@ -79,7 +79,7 @@ def count_amenities(text):
 
 
 
-filename = 'listings-clean-william.csv'
+filename = 'listings-clean.csv'
 dataFrame = pd.read_csv(filename, encoding='latin-1')
 
 # Make the colums required for the model that are missing
