@@ -87,7 +87,8 @@ columns = [
     'latitude', 'longitude', 'distance_to_city_center',
     'bedrooms', 'beds', 'number_bathrooms',
     'kitchen_availability', 'place_for_yourself', 'host_is_superhost_numerical', 'amenities_count',  
-    'review_scores_rating', 'number_of_reviews', # host_is_superhost_numerical
+    'review_scores_rating', 'number_of_reviews',  'host_is_superhost_numerical'
+
     # additional review types
     #'review_scores_accuracy', 'review_scores_cleanliness', 'review_scores_checkin', 'review_scores_communication', 'review_scores_location', 'review_scores_value',
 
@@ -116,27 +117,52 @@ dataFrame['host_is_superhost_numerical'] = dataFrame['host_is_superhost'].apply(
 dataFrame['amenities_count'] = dataFrame['amenities'].apply(count_amenities)
 
 
-# TODO look at the column edges to find strange data to remove
-nan_counts = dataFrame[columns].isnull().sum()
-print()
-print(f"The number of rows containing NaN values for each column:")
-print(nan_counts)
 
+# Section for filtering out NaN values prior to normalisation
+# Creates a mask for filtering NaN values prior to normalisation
+mask = dataFrame[columns].notna().all(axis=1)
+
+# Creates two dataframes, one containing the rows that have NaN values, the other excluding these rows
+na_dataFrame = dataFrame[~mask].fillna(0)
+filtered_dataFrame = dataFrame[mask]
+
+'''
+# Checks rows that contain NaN values
+nan_counts = dataFrame[columns].isnull().sum()
+print(f"\nThe number of rows containing NaN values for each column:")
+print(nan_counts)
+'''
+'''
+# Verifies that the dataframe does not contain NaN values
+mask_filtered_nan_counts = filtered_dataFrame[columns].isnull().sum()
+print(f"\nFiltered dataFrame number of NaN values for each column:")
+print(mask_filtered_nan_counts)
+'''
+
+# Normalises the non-NaN value rows, then concats the NaN row dataframe with NaN replaced by zeros
+scaler = MinMaxScaler()
+normalised_dataFrame = pd.DataFrame(scaler.fit_transform(filtered_dataFrame[columns]), columns=columns)
+
+# merges the na_dataFrame (with NaN values replaced with zeros)
+normalised_dataFrame.reset_index(drop=True, inplace=True)
+na_dataFrame.reset_index(drop=True, inplace=True)
+normalised_and_na_dataFrame = pd.concat([normalised_dataFrame, na_dataFrame[columns]], axis=0, ignore_index=True)
+
+'''
+# Verifies that the final normalised dataFrame does not contain NaN values
+normalised_dataFrame_nan_counts = normalised_dataFrame.isnull().sum()
+print(f"\nNormalised dataFrame number of NaN values for each column:")
+print(normalised_dataFrame_nan_counts)
+'''
+
+
+# TODO the closest_to_city_center should be inverted
+# TODO look at the column edges to find strange data to remove
+'''
 for col in columns:
     print(f"Investigation of column: {col}")
     print(f"column min value {min(dataFrame[col])}")
     print(f"column max value {max(dataFrame[col])}")
     print(dataFrame[col].value_counts())
     print()
-
-
-# Assuming df is your DataFrame
-df_normalized = dataFrame.copy()
-
-
-# TODO Find a mask for the NaN value rows/cells to ignore during normalisation
-
-# TODO the closest_to_city_center should be inverted
-scaler = MinMaxScaler()
-df_normalized[columns] = scaler.fit_transform(dataFrame[columns])
-print(df_normalized[columns].head())
+'''
