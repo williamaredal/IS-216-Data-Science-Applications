@@ -72,15 +72,53 @@ def is_host_superhost(text):
         return 0
 
 
+def is_instant_bookable(text):
+    if text == 't':
+        return 1
+    else:
+        return 0
+
+
 def count_amenities(text):
     amenities_count = len([amenity.strip() for amenity in text.replace('[', '').replace( ']', '').replace('"', '').split(',') if amenity != ''])
 
     return amenities_count
 
 
+def calculate_persona_scores(df):
+    # Define the preferences for each persona
+    persona_preferences = {
+        'Budget Ben': {'price': 10, 'distance_to_city_center': 5, 'bedrooms': 1, 'number_bathrooms': 1, 'kitchen_availability': 6, 'place_for_yourself': 5, 'amenities_count': 7, 'review_scores_rating': 7, 'number_of_reviews': 7, 'host_is_superhost': 6, 'instant_bookable': 5},
+        'Corporate Carla': {'price': 7, 'distance_to_city_center': 8, 'bedrooms': 8, 'number_bathrooms': 5, 'kitchen_availability': 5, 'place_for_yourself': 8, 'instant_bookable': 10, 'amenities_count': 8, 'review_scores_rating': 9, 'number_of_reviews': 9, 'host_is_superhost': 8, 'instant_bookable': 10},
+        'Family Freddy': {'price': 8, 'distance_to_city_center': 9, 'bedrooms': 9, 'number_bathrooms': 10, 'kitchen_availability': 10, 'place_for_yourself': 10, 'instant_bookable': 7, 'amenities_count': 10, 'review_scores_rating': 9, 'number_of_reviews': 9, 'host_is_superhost': 7, 'instant_bookable': 7}
+    }
+        
+    # Map the preferences to the DataFrame columns
+    column_mapping = {
+        'price': 'normalised_price',
+        'distance_to_city_center': 'normalised_distance_to_city_center',
+        'bedrooms': 'normalised_bedrooms',
+        'number_bathrooms': 'normalised_number_bathrooms',
+        'kitchen_availability': 'normalised_kitchen_availability',
+        'place_for_yourself': 'normalised_place_for_yourself',
+        'amenities_count': 'normalised_amenities_count',
+        'review_scores_rating': 'normalised_review_scores_rating',
+        'number_of_reviews': 'normalised_number_of_reviews',
+        'host_is_superhost': 'normalised_host_is_superhost',
+        'instant_bookable': 'normalised_instant_bookable',
+    }
+
+    # Calculate scores for each persona
+    for persona, preferences in persona_preferences.items():
+        df[persona] = sum(df[column_mapping[metric]] * weight for metric, weight in preferences.items())
+
+    return df
+
 
 filename = 'listings-clean.csv'
 dataFrame = pd.read_csv(filename, encoding='latin-1')
+
+
 
 # Make the colums required for the model that are missing
 # Makes column with the number of bathrooms
@@ -96,10 +134,13 @@ dataFrame['kitchen_availability'] = dataFrame['amenities'].apply(has_kitchen)
 dataFrame['place_for_yourself'] = dataFrame['room_type'].apply(place_for_yourself)
 
 # Converts superhost boolean values to numerical representation
-dataFrame['host_is_superhost_numerical'] = dataFrame['host_is_superhost'].apply(is_host_superhost)
+dataFrame['host_is_superhost'] = dataFrame['host_is_superhost'].apply(is_host_superhost)
 
 # adds new column with number of amenities count
 dataFrame['amenities_count'] = dataFrame['amenities'].apply(count_amenities)
+
+# Adds column with instant_bookable 
+dataFrame['instant_bookable'] = dataFrame['instant_bookable'].apply(is_instant_bookable)
 
 
 
@@ -108,7 +149,7 @@ columns = [
     'distance_to_city_center',
     'bedrooms', 'beds', 'number_bathrooms',
     'kitchen_availability', 'place_for_yourself', 'amenities_count',  
-    'review_scores_rating', 'number_of_reviews',  'host_is_superhost_numerical'
+    'review_scores_rating', 'number_of_reviews',  'host_is_superhost', 'instant_bookable',
 
     # additional review types
     #'review_scores_accuracy', 'review_scores_cleanliness', 'review_scores_checkin', 'review_scores_communication', 'review_scores_location', 'review_scores_value',
@@ -116,6 +157,9 @@ columns = [
     # additional columns than the ones we have in the google sheets document
     #'accommodates', 'reviews_per_month', 
 ]
+
+
+
 
 
 # For examining the dataFrame, identifying if there are strange values there
@@ -133,18 +177,27 @@ df_normalized = dataFrame.copy()
 for col in columns:
     # Extract non-NaN values and normalize them
     non_nan_values = dataFrame[col][dataFrame[col].notna()].values.reshape(-1, 1)
-    scaler = MinMaxScaler()
+    scaler = MinMaxScaler((0, 1))
+
     # If the column should be inverted (1 - value)
-    if col == 'distance_to_city_center':
+    if col == 'normalised_distance_to_city_center':
         non_nan_values = 1 - scaler.fit_transform(non_nan_values)
+
+    elif col == 'price':
+        non_nan_values = 1 - scaler.fit_transform(non_nan_values)
+
     else:
         non_nan_values = scaler.fit_transform(non_nan_values)
 
+    colname = col
+    if 'normalised_' not in colname:
+        colname = 'normalised_' + col
+
     # Replace only the non-NaN values in the column with their normalized values
-    df_normalized.loc[dataFrame[col].notna(), col] = np.squeeze(non_nan_values)
+    df_normalized.loc[dataFrame[col].notna(), colname] = np.squeeze(non_nan_values)
 
     # Now fill NaN values with 0
-    df_normalized[col].fillna(0, inplace=True)
+    df_normalized[colname].fillna(0, inplace=True)
 
 
 '''
@@ -169,5 +222,29 @@ print(f"\nNormalised dataFrame number of NaN values for each column:")
 print(normalised_dataFrame_nan_counts)
 '''
 
+
+
+
+# Adds columns for persona weigthing for each listing
+persona_weighted_dataFrame = calculate_persona_scores(df_normalized)
+print(persona_weighted_dataFrame[['Budget Ben', 'Corporate Carla', 'Family Freddy']])
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+def CorrelationalMatrixHeatmap(dataFrame, columns):
+    subsetDF = dataFrame[columns]
+
+    # Calculate the correlation matrix
+    correlationMatrix = subsetDF.corr()
+
+    # Create a heatmap
+    plt.figure(figsize=(8, 6))
+    heatmap = sns.heatmap(correlationMatrix, annot=True, cmap="coolwarm")
+    heatmap.set_xticklabels(heatmap.get_xticklabels(), rotation=45, ha='right')
+    plt.title("Correlation Heatmap")
+    plt.show()
+
+
+CorrelationalMatrixHeatmap(df_normalized, columns)
 # Writes normalized dataset to csv file
 df_normalized.to_csv('listings-cleaned-normalized.csv')
