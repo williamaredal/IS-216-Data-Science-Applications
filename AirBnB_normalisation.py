@@ -104,9 +104,9 @@ dataFrame['amenities_count'] = dataFrame['amenities'].apply(count_amenities)
 
 columns = [
     'price', 
-    'latitude', 'longitude', 'distance_to_city_center',
+    'distance_to_city_center',
     'bedrooms', 'beds', 'number_bathrooms',
-    'kitchen_availability', 'place_for_yourself', 'host_is_superhost_numerical', 'amenities_count',  
+    'kitchen_availability', 'place_for_yourself', 'amenities_count',  
     'review_scores_rating', 'number_of_reviews',  'host_is_superhost_numerical'
 
     # additional review types
@@ -140,14 +140,20 @@ print(f"\nFiltered dataFrame number of NaN values for each column:")
 print(mask_filtered_nan_counts)
 '''
 
+
 # Normalises the non-NaN value rows, then concats the NaN row dataframe with NaN replaced by zeros
-scaler = MinMaxScaler()
+scaler = MinMaxScaler(feature_range=(0, 1))
 normalised_dataFrame = pd.DataFrame(scaler.fit_transform(filtered_dataFrame[columns]), columns=columns)
+
+# Reverses the order of the normalisation for column_to_reverse ('distance_to_city_center')
+column_to_reverse = 'distance_to_city_center'
+normalised_dataFrame[column_to_reverse] = 1 - normalised_dataFrame[column_to_reverse]
 
 # merges the na_dataFrame (with NaN values replaced with zeros)
 normalised_dataFrame.reset_index(drop=True, inplace=True)
 na_dataFrame.reset_index(drop=True, inplace=True)
 normalised_and_na_dataFrame = pd.concat([normalised_dataFrame, na_dataFrame[columns]], axis=0, ignore_index=True)
+
 
 '''
 # Verifies that the final normalised dataFrame does not contain NaN values
@@ -157,7 +163,7 @@ print(normalised_dataFrame_nan_counts)
 '''
 
 
-# TODO the closest_to_city_center should be inverted
+
 # TODO look at the column edges to find strange data to remove
 '''
 for col in columns:
