@@ -174,21 +174,13 @@ for col in columns:
 
 # Perform normalization 
 df_normalized = dataFrame.copy()
+invert_columns = ['normalised_distance_to_city_center', 'price']
 for col in columns:
     # Extract non-NaN values and normalize them
     non_nan_values = dataFrame[col][dataFrame[col].notna()].values.reshape(-1, 1)
     scaler = MinMaxScaler((0, 1))
 
-    # If the column should be inverted (1 - value)
-    if col == 'normalised_distance_to_city_center':
-        non_nan_values = 1 - scaler.fit_transform(non_nan_values)
-
-    elif col == 'price':
-        non_nan_values = 1 - scaler.fit_transform(non_nan_values)
-
-    else:
-        non_nan_values = scaler.fit_transform(non_nan_values)
-
+    # Sets the new normalised column name
     colname = col
     if 'normalised_' not in colname:
         colname = 'normalised_' + col
@@ -198,6 +190,12 @@ for col in columns:
 
     # Now fill NaN values with 0
     df_normalized[colname].fillna(0, inplace=True)
+
+    # Checks if the column should be inverted (1 - value)
+    if col in invert_columns:
+        df_normalized[colname] = 1 - df_normalized[colname]
+
+
 
 
 '''
