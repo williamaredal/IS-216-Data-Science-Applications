@@ -227,22 +227,5 @@ print(normalised_dataFrame_nan_counts)
 persona_weighted_dataFrame = calculate_persona_scores(df_normalized)
 print(persona_weighted_dataFrame[['Budget Ben', 'Corporate Carla', 'Family Freddy']])
 
-import matplotlib.pyplot as plt
-import seaborn as sns
-def CorrelationalMatrixHeatmap(dataFrame, columns):
-    subsetDF = dataFrame[columns]
-
-    # Calculate the correlation matrix
-    correlationMatrix = subsetDF.corr()
-
-    # Create a heatmap
-    plt.figure(figsize=(8, 6))
-    heatmap = sns.heatmap(correlationMatrix, annot=True, cmap="coolwarm")
-    heatmap.set_xticklabels(heatmap.get_xticklabels(), rotation=45, ha='right')
-    plt.title("Correlation Heatmap")
-    plt.show()
-
-
-CorrelationalMatrixHeatmap(df_normalized, columns)
 # Writes normalized dataset to csv file
 df_normalized.to_csv('listings-cleaned-normalized.csv')
