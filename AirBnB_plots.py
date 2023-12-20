@@ -35,6 +35,23 @@ def CorrelationalMatrixHeatmap(dataFrame, columns):
     plt.show()
 
 
+def PrettierCorrelationalHeatmap(dataFrame, columns):
+    # Subset the DataFrame
+    subsetDF = dataFrame[columns]
+
+    # Calculate the correlation matrix
+    correlationMatrix = subsetDF.corr()
+
+    # Create a custom diverging colormap
+    cmap = sns.diverging_palette(220, 20, as_cmap=True)
+    plt.figure(figsize=(10, 8))
+    heatmap = sns.heatmap(correlationMatrix, cmap=cmap, annot=True, fmt=".2f", linewidths=.5, square=True)
+    heatmap.set_xticklabels(heatmap.get_xticklabels(), rotation=45, ha='right')
+
+    # Shows the heatmap
+    plt.title("Correlation Heatmap")
+    plt.show()
+
 filename = 'listings-clean.csv'
 dataFrame = pd.read_csv(filename, encoding='latin-1')
 dataFrame['number_bathrooms'] = dataFrame['bathrooms_text'].apply(extract_number)
@@ -63,4 +80,5 @@ df_normalized[columns] = scaler.fit_transform(dataFrame[columns])
 
 
 # plots heatmap of correlational matrix
-CorrelationalMatrixHeatmap(dataFrame, columns)
+#CorrelationalMatrixHeatmap(dataFrame, columns)
+PrettierCorrelationalHeatmap(dataFrame, columns)
