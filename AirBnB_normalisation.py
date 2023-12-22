@@ -88,10 +88,49 @@ def count_amenities(text):
 def calculate_persona_scores(df):
     # Define the preferences for each persona
     persona_preferences = {
-        'Budget Ben': {'price': 10, 'distance_to_city_center': 5, 'bedrooms': 1, 'number_bathrooms': 1, 'kitchen_availability': 6, 'place_for_yourself': 5, 'amenities_count': 7, 'review_scores_rating': 7, 'number_of_reviews': 7, 'host_is_superhost': 6, 'instant_bookable': 5},
-        'Corporate Carla': {'price': 7, 'distance_to_city_center': 8, 'bedrooms': 8, 'number_bathrooms': 5, 'kitchen_availability': 5, 'place_for_yourself': 8, 'instant_bookable': 10, 'amenities_count': 8, 'review_scores_rating': 9, 'number_of_reviews': 9, 'host_is_superhost': 8, 'instant_bookable': 10},
-        'Family Freddy': {'price': 8, 'distance_to_city_center': 9, 'bedrooms': 9, 'number_bathrooms': 10, 'kitchen_availability': 10, 'place_for_yourself': 10, 'instant_bookable': 7, 'amenities_count': 10, 'review_scores_rating': 9, 'number_of_reviews': 9, 'host_is_superhost': 7, 'instant_bookable': 7}
+        'Budget Ben': {
+            'price': 10, 
+            'distance_to_city_center': 5, 
+            'bedrooms': 1, 
+            'number_bathrooms': 1, 
+            'kitchen_availability': 6, 
+            'place_for_yourself': 5, 
+            'amenities_count': 7, 
+            'review_scores_rating': 7, 
+            'number_of_reviews': 7, 
+            'host_is_superhost': 6, 
+            'instant_bookable': 5
+        },
+        'Corporate Carla': {
+            'price': 7, 
+            'distance_to_city_center': 8, 
+            'bedrooms': 8, 
+            'number_bathrooms': 5, 
+            'kitchen_availability': 5, 
+            'place_for_yourself': 8, 
+            'instant_bookable': 10, 
+            'amenities_count': 8, 
+            'review_scores_rating': 9, 
+            'number_of_reviews': 9, 
+            'host_is_superhost': 8, 
+            'instant_bookable': 10
+        },
+        'Family Freddy': {
+            'price': 8, 
+            'distance_to_city_center': 9, 
+            'bedrooms': 9, 
+            'number_bathrooms': 10, 
+            'kitchen_availability': 10, 
+            'place_for_yourself': 10, 
+            'instant_bookable': 7, 
+            'amenities_count': 10, 
+            'review_scores_rating': 9, 
+            'number_of_reviews': 9, 
+            'host_is_superhost': 7, 
+            'instant_bookable': 7
+        }
     }
+
         
     # Map the preferences to the DataFrame columns
     column_mapping = {
