@@ -20,6 +20,14 @@ def extract_number(text):
         return 1.0
 
 
+def extract_price_per_accommodate(row):
+    if (row['price'] and row['accommodates'] != 0):
+        price_per_accommodate = row['price'] / row['accommodates']
+        return price_per_accommodate  
+    else: 
+        return 0
+
+
 def find_distance_to_city_center(latitude, longitude):
     # Latitude and longtitude distance to oslo 
     oslo_lat_long = [59.911491, 10.757933] # from this source: https://www.latlong.net/place/oslo-ostlandet-norway-14195.html
@@ -181,6 +189,9 @@ dataFrame['amenities_count'] = dataFrame['amenities'].apply(count_amenities)
 # Adds column with instant_bookable 
 dataFrame['instant_bookable'] = dataFrame['instant_bookable'].apply(is_instant_bookable)
 
+# Adds column describing price per accomodate
+dataFrame['price_per_accommodate'] = dataFrame.apply(extract_price_per_accommodate, axis=1)
+
 
 
 columns = [
@@ -194,7 +205,7 @@ columns = [
     #'review_scores_accuracy', 'review_scores_cleanliness', 'review_scores_checkin', 'review_scores_communication', 'review_scores_location', 'review_scores_value',
 
     # additional columns than the ones we have in the google sheets document
-    #'accommodates', 'reviews_per_month', 
+    #'accommodates', 'reviews_per_month', 'price_per_accommodate'
 ]
 
 
@@ -213,7 +224,7 @@ for col in columns:
 
 # Perform normalization 
 df_normalized = dataFrame.copy()
-invert_columns = ['distance_to_city_center', 'price']
+invert_columns = ['distance_to_city_center', 'price'] # price_per_accommodate should be inverted if added
 for col in columns:
     # Extract non-NaN values and normalize them
     non_nan_values = dataFrame[col][dataFrame[col].notna()].values.reshape(-1, 1)
